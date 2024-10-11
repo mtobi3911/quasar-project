@@ -136,13 +136,6 @@ const incomingMails = ref([
 
 
 // Функция для отправки данных с проверкой
-// const handleSubmit = () => {
-//   if (email_adres.value.trim() === '') {
-//     emailError.value = true
-//     errorMessage.value = 'Введите значение'
-//   } else {
-//     emailError.value = false
-//     errorMessage.value = ''
 
 const handleSubmit = () => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
