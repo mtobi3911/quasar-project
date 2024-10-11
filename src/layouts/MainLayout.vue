@@ -33,7 +33,9 @@
           </q-card-section>
 
           <q-card-actions align="right">
-            <q-btn flat label="Отмена" color="secondary"  @click="saveToDrafts"></q-btn>
+            <q-btn flat label="Отмена" color="secondary"  @click="alert = false"></q-btn>
+            <q-space></q-space>
+            <q-btn flat label="Сохранить в черновик" color="orange" @click="saveToDrafts"></q-btn>
             <q-btn flat label="Отправить" color="primary" @click="handleSubmit"></q-btn>
           </q-card-actions>
         </q-card>
@@ -207,6 +209,14 @@ const saveToDrafts = () => {
 }
 .input_email {
   margin-bottom: 16px;
+
+}
+.q-btn {
+  min-width: 100px;
+}
+
+.q-card-actions .q-btn {
+  margin-left: 10px;
 }
 .text_mail {
   padding: 10px;
