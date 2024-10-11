@@ -1,7 +1,8 @@
 <template>
   <div id="q-app" style="min-height: 100vh;">
     <div class="q-pa-md q-gutter-sm">
-      <q-btn label="Написать письмо" color="secondary" @click="openNewEmail"></q-btn>
+      <!-- <q-btn label="Написать письмо" color="secondary" @click="openNewEmail"></q-btn> -->
+      
 
       <q-dialog v-model="alert" persistent>
         <q-card class="q-pa-md dialog-card" style="max-width: 500px;">
@@ -9,6 +10,7 @@
             <div class="text-h6 text-center q-mb-md">{{ isEditingDraft ? 'Редактировать черновик' : 'Написать письмо' }}</div>
           </q-card-section>
           <q-card-section class="q-gutter-sm">
+            
             <q-input
               class="input_email"
               v-model="email_adres"
@@ -39,7 +41,8 @@
         </q-card>
       </q-dialog>
     </div>
-
+    <!-- Перенесенная кнопка с heder -->
+    <q-btn class="btn_click_bar" label="Написать письмо" color="secondary" @click="openNewEmail"></q-btn>
     <div>
       <q-splitter v-model="splitterModel" class="box">
         <template v-slot:before>
@@ -47,6 +50,15 @@
             <q-tab name="mails" icon="mail" label="Входящие"></q-tab>
             <q-tab name="alarms" icon="inbox" label="Отправленные"></q-tab>
             <q-tab name="movies" icon="label" label="Черновики"></q-tab>
+
+            <q-btn
+              class="night_theme"
+              flat
+              icon="brightness_6"
+              :label="isDark ? 'Светлая тема' : 'Темная тема'"
+              @click="toggleTheme"
+              color="secondary"
+            />
           </q-tabs>
         </template>
 
@@ -97,8 +109,10 @@
 </template>
 
 <script setup>
+import { Dark } from 'quasar'
 import { ref } from 'vue'
 
+const isDark = ref(Dark.isActive)
 const alert = ref(false)
 const tab = ref('mails')
 const splitterModel = ref(20)
@@ -138,6 +152,25 @@ const incomingMails = ref([
     body: 'Я пока уехал 5 октября буду дома'
   }
 ])
+
+const toggleTheme = () => {
+  const newTheme = !Dark.isActive
+  Dark.set(newTheme)
+  isDark.value = newTheme
+  localStorage.setItem('theme', newTheme ? 'dark' : 'light')
+}
+// onMounted(() => {
+//   const savedTheme = localStorage.getItem('theme')
+  
+//   if (savedTheme === 'dark' || savedTheme === 'light') {
+//     Dark.set(savedTheme === 'dark')
+//     isDark.value = Dark.isActive
+//   } else {
+//     // Если тема некорректна или отсутствует, устанавливаем светлую по умолчанию
+//     Dark.set(false)
+//     isDark.value = false
+//   }
+// })
 
 // Открыть окно для нового письма
 const openNewEmail = () => {
@@ -249,10 +282,14 @@ const deleteMail = (index, type) => {
   margin-bottom: 16px;
 
 }
-.q-btn {
-  min-width: 100px;
+.btn_click_bar {
+  margin-left: 110px;
+  margin-bottom: 10px;
 }
-
+.night_theme {
+  margin-top: 10px;
+  margin-left: 100px;
+}
 .q-card-actions .q-btn {
   margin-left: 10px;
 }
