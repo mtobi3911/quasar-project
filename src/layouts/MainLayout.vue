@@ -1,12 +1,12 @@
 <template>
   <div id="q-app" style="min-height: 100vh;">
     <div class="q-pa-md q-gutter-sm">
-      <q-btn label="Написать письмо" color="secondary" @click="alert = true"></q-btn>
+      <q-btn label="Написать письмо" color="secondary" @click="openNewEmail"></q-btn>
 
       <q-dialog v-model="alert" persistent>
         <q-card class="q-pa-md dialog-card" style="max-width: 500px;">
           <q-card-section>
-            <div class="text-h6 text-center q-mb-md">Написать письмо</div>
+            <div class="text-h6 text-center q-mb-md">{{ isEditingDraft ? 'Редактировать черновик' : 'Написать письмо' }}</div>
           </q-card-section>
           <q-card-section class="q-gutter-sm">
             <q-input
@@ -17,10 +17,8 @@
               :error-message="errorMessage"
               dense
               outlined
+              @change="validateEmail"
             ></q-input>
-
-          
-          
             <q-input 
             v-model="text" 
             filled 
@@ -35,8 +33,8 @@
           <q-card-actions align="right">
             <q-btn flat label="Отмена" color="secondary"  @click="alert = false"></q-btn>
             <q-space></q-space>
-            <q-btn flat label="Сохранить в черновик" color="orange" @click="saveToDrafts"></q-btn>
-            <q-btn flat label="Отправить" color="primary" @click="handleSubmit"></q-btn>
+            <q-btn flat label="Сохранить в черновик" color="orange" @click="saveToDrafts" :disabled="!isValidEmail"></q-btn>
+            <q-btn flat label="Отправить" color="primary" @click="handleSubmit" :disabled="!isValidEmail"></q-btn>
           </q-card-actions>
         </q-card>
       </q-dialog>
@@ -47,7 +45,7 @@
         <template v-slot:before>
           <q-tabs v-model="tab" vertical class="text-teal">
             <q-tab name="mails" icon="mail" label="Входящие"></q-tab>
-            <q-tab name="alarms" icon="inbox" label="Исходящие"></q-tab>
+            <q-tab name="alarms" icon="inbox" label="Отправленные"></q-tab>
             <q-tab name="movies" icon="label" label="Черновики"></q-tab>
           </q-tabs>
         </template>
@@ -66,25 +64,29 @@
                     <div><strong>Дата:</strong> {{ mail.date }}</div>
                     <p>{{ mail.body }}</p>
                   </q-card-section>
+                  <q-btn flat color="negative" label="Удалить" @click="deleteMail(index, 'incoming')"></q-btn>
                 </q-card>
               </div>
             </q-tab-panel>
 
-            <!-- Исходящие -->
+            <!-- Отправленные -->
             <q-tab-panel name="alarms">
-              <div class="text-h4 q-mb-md">Исходящие</div>
+              <div class="text-h4 q-mb-md">Отправленные</div>
               <div v-for="(mail, index) in outboxMails" :key="index" class="mail-card">
                 <p><strong>Адрес:</strong> {{ mail.email }}</p>
                 <p><strong>Текст:</strong> {{ mail.text }}</p>
+                <q-btn flat color="negative" label="Удалить" @click="deleteMail(index, 'outbox')"></q-btn>
               </div>
             </q-tab-panel>
 
             <!-- Черновики -->
             <q-tab-panel name="movies">
               <div class="text-h4 q-mb-md">Черновики</div>
-              <div v-for="(draft, index) in draftMails" :key="index" class="mail-card">
+              <div v-for="(draft, index) in draftMails" :key="index" class="mail-card" @click="editDraft(index)">
                 <p><strong>Адрес:</strong> {{ draft.email }}</p>
                 <p><strong>Текст:</strong> {{ draft.text }}</p>
+                <q-btn flat color="primary" label="Редактировать" @click="editDraft(index)"></q-btn>
+                <q-btn flat color="negative" label="Удалить" @click="deleteMail(index, 'draft')"></q-btn>
               </div>
             </q-tab-panel>
           </q-tab-panels>
@@ -107,8 +109,13 @@ const text = ref('')
 const emailError = ref(false)
 const errorMessage = ref('')
 
+const isValidEmail = ref(false)
+
 const outboxMails = ref([]) // Массив для исходящих писем
 const draftMails = ref([])   // Массив для черновиков
+
+const isEditingDraft = ref(false)  // Флаг для определения редактирования черновика
+let editingDraftIndex = ref(null)  // Индекс редактируемого черновика
 
 // Массив с входящими письмами (заполненный вручную)
 const incomingMails = ref([
@@ -132,63 +139,101 @@ const incomingMails = ref([
   }
 ])
 
+// Открыть окно для нового письма
+const openNewEmail = () => {
+  isEditingDraft.value = false
+  email_adres.value = ''
+  text.value = ''
+  alert.value = true
+}
+
+// Открыть и редактировать черновик
+const editDraft = (index) => {
+  isEditingDraft.value = true
+  editingDraftIndex.value = index
+  email_adres.value = draftMails.value[index].email
+  text.value = draftMails.value[index].text
+  alert.value = true
+}
 
 
-
-// Функция для отправки данных с проверкой
-
-const handleSubmit = () => {
+// Функция для валидации email
+const validateEmail = () => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-  if (email_adres.value.trim() === '') {
-    emailError.value = true;
-    errorMessage.value = 'Введите значение';
-  } else if (!emailRegex.test(email_adres.value)) {
-    emailError.value = true;
-    errorMessage.value = 'Введите корректный email';
+  if (emailRegex.test(email_adres.value)) {
+    console.log('Valid email:', email_adres.value)
+    emailError.value = false
+    errorMessage.value = ''
+    isValidEmail.value = true
   } else {
-    emailError.value = false;
-    errorMessage.value = '';
-    
+    console.log('Invalid email:', email_adres.value)
+    emailError.value = true
+    errorMessage.value = 'Введите корректный email'
+    isValidEmail.value = false
+  }
+  console.log('isValidEmail:', isValidEmail.value)
+}
 
+// Функция для отправки письма
+const handleSubmit = () => {
+    if (!isValidEmail.value) {
+    emailError.value = true
+    errorMessage.value = 'Введите корректный email'
+  } else {
+    emailError.value = false
+    errorMessage.value = ''
+
+    // Если редактируется черновик, удаляем его
+    if (isEditingDraft.value) {
+      draftMails.value.splice(editingDraftIndex.value, 1)
+    }
 
     outboxMails.value.push({
       email: email_adres.value,
       text: text.value
-    });
+    })
 
-  
-    email_adres.value = '';
-    text.value = '';
-
-    alert.value = false;
+    email_adres.value = ''
+    text.value = ''
+    alert.value = false
   }
-};
-// Функция для сохранения письма в черновики
+}
+
+// Функция для сохранения черновика
 const saveToDrafts = () => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!isValidEmail.value) {
+    emailError.value = true
+    errorMessage.value = 'Введите корректный email для сохранения черновика'
+  } else {
+    emailError.value = false
+    errorMessage.value = ''
 
-  // Если введен текст или email
-  if (email_adres.value.trim() !== '' || text.value.trim() !== '') {
-    // Если email есть, проверяем его корректность
-    if (email_adres.value.trim() !== '' && !emailRegex.test(email_adres.value)) {
-      emailError.value = true;
-      errorMessage.value = 'Введите корректный email для сохранения черновика';
-    } else {
-
-       emailError.value = false;
-       errorMessage.value = '';
-
+      // Если редактируется черновик, обновляем его
+      if (isEditingDraft.value) {
+       draftMails.value[editingDraftIndex.value] = {
+          email: email_adres.value,
+          text: text.value
+        }
+     } else {
         draftMails.value.push({
          email: email_adres.value,
-          text: text.value
-       });
+         text: text.value
+       })
+      }
 
-     email_adres.value = ''
-     text.value = ''
+    email_adres.value = ''
+    text.value = ''
+    alert.value = false
+  }
+}
 
-     alert.value = false;
-    }
+const deleteMail = (index, type) => {
+  if (type === 'incoming') {
+    incomingMails.value.splice(index, 1); // Удалить письмо из входящих
+  } else if (type === 'outbox') {
+    outboxMails.value.splice(index, 1); // Удалить письмо из отправленных
+  } else if (type === 'draft') {
+    draftMails.value.splice(index, 1); // Удалить черновик
   }
 };
 </script>
@@ -219,6 +264,7 @@ const saveToDrafts = () => {
   border-radius: 8px;
   margin-bottom: 16px;
   padding: 10px;
+  cursor: pointer;
 }
 .q-btn {
   min-width: 100px;
