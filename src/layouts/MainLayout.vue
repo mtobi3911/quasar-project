@@ -22,7 +22,7 @@
           </div>
           
           <q-btn flat label="Отмена" v-close-popup @click="saveToDrafts"></q-btn>
-          <q-btn flat label="Отправить" v-close-popup @click="handleSubmit"></q-btn>
+          <q-btn flat label="Отправить" @click="handleSubmit"></q-btn>
         </q-card>
       </q-dialog>
     </div>
@@ -143,30 +143,32 @@ const handleSubmit = () => {
     errorMessage.value = '';
     
 
-    // Добавляем письмо в "Исходящие"
+
     outboxMails.value.push({
       email: email_adres.value,
       text: text.value
-    })
+    });
 
-    // Очищаем поля
-    email_adres.value = ''
-    text.value = ''
+  
+    email_adres.value = '';
+    text.value = '';
+
+    alert.value = false;
   }
-}
+};
 // Функция для сохранения письма в черновики
 const saveToDrafts = () => {
   if (email_adres.value.trim() !== '' || text.value.trim() !== '') {
     draftMails.value.push({
       email: email_adres.value,
       text: text.value
-    })
+    });
 
     // Очищаем поля
     email_adres.value = ''
     text.value = ''
   }
-}
+};
 </script>
 
 <style scoped>
