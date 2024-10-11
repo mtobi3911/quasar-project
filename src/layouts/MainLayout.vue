@@ -3,26 +3,39 @@
     <div class="q-pa-md q-gutter-sm">
       <q-btn label="Написать письмо" color="secondary" @click="alert = true"></q-btn>
 
-      <q-dialog v-model="alert">
-        <q-card>
+      <q-dialog v-model="alert" persistent>
+        <q-card class="q-pa-md dialog-card" style="max-width: 500px;">
           <q-card-section>
-            <div class="text-h6">Написать письмо</div>
+            <div class="text-h6 text-center q-mb-md">Написать письмо</div>
           </q-card-section>
-          
-          <q-input
-            class="input_email"
-            v-model="email_adres"
-            label="Введите адрес"
-            :error="emailError"
-            :error-message="errorMessage"
-          ></q-input>
+          <q-card-section class="q-gutter-sm">
+            <q-input
+              class="input_email"
+              v-model="email_adres"
+              label="Введите адрес"
+              :error="emailError"
+              :error-message="errorMessage"
+              dense
+              outlined
+            ></q-input>
 
-          <div class="text_mail" style="max-width: 300px">
-            <q-input v-model="text" filled type="textarea" label="Введите текст письма"></q-input>
-          </div>
           
-          <q-btn flat label="Отмена" v-close-popup @click="saveToDrafts"></q-btn>
-          <q-btn flat label="Отправить" @click="handleSubmit"></q-btn>
+          
+            <q-input 
+            v-model="text" 
+            filled 
+            type="textarea" 
+            label="Введите текст письма"
+            dense
+            outlined
+            class="q-mt-md"
+            ></q-input>
+          </q-card-section>
+
+          <q-card-actions align="right">
+            <q-btn flat label="Отмена" color="secondary"  @click="saveToDrafts"></q-btn>
+            <q-btn flat label="Отправить" color="primary" @click="handleSubmit"></q-btn>
+          </q-card-actions>
         </q-card>
       </q-dialog>
     </div>
@@ -158,22 +171,42 @@ const handleSubmit = () => {
 };
 // Функция для сохранения письма в черновики
 const saveToDrafts = () => {
-  if (email_adres.value.trim() !== '' || text.value.trim() !== '') {
-    draftMails.value.push({
-      email: email_adres.value,
-      text: text.value
-    });
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    // Очищаем поля
-    email_adres.value = ''
-    text.value = ''
+  // Если введен текст или email
+  if (email_adres.value.trim() !== '' || text.value.trim() !== '') {
+    // Если email есть, проверяем его корректность
+    if (email_adres.value.trim() !== '' && !emailRegex.test(email_adres.value)) {
+      emailError.value = true;
+      errorMessage.value = 'Введите корректный email для сохранения черновика';
+    } else {
+
+       emailError.value = false;
+       errorMessage.value = '';
+
+        draftMails.value.push({
+         email: email_adres.value,
+          text: text.value
+       });
+
+     email_adres.value = ''
+     text.value = ''
+
+     alert.value = false;
+    }
   }
 };
 </script>
 
 <style scoped>
+.dialog-card {
+  max-width: 500px;
+  width: 100%;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
 .input_email {
-  padding: 10px;
+  margin-bottom: 16px;
 }
 .text_mail {
   padding: 10px;
@@ -184,5 +217,7 @@ const saveToDrafts = () => {
   margin-bottom: 16px;
   padding: 10px;
 }
-
+.q-btn {
+  min-width: 100px;
+}
 </style>
