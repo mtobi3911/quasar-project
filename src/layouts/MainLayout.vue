@@ -160,7 +160,7 @@ const toggleTheme = () => {
 // Открыть окно для нового письма
 const openNewEmail = () => {
   isEditingDraft.value = false
-  email_adres.value = ''
+  email_adsress.value = ''
   text.value = ''
   alert.value = true
 }
@@ -169,7 +169,7 @@ const openNewEmail = () => {
 const editDraft = (index) => {
   isEditingDraft.value = true
   editingDraftIndex.value = index
-  email_adres.value = draftMails.value[index].email
+  email_address.value = draftMails.value[index].email
   text.value = draftMails.value[index].text
   alert.value = true
 }
@@ -178,13 +178,13 @@ const editDraft = (index) => {
 // Функция для валидации email
 const validateEmail = () => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (emailRegex.test(email_adres.value)) {
-    console.log('Valid email:', email_adres.value)
+  if (emailRegex.test(email_adsress.value)) {
+    console.log('Valid email:', email_address.value)
     emailError.value = false
     errorMessage.value = ''
     isValidEmail.value = true
   } else {
-    console.log('Invalid email:', email_adres.value)
+    console.log('Invalid email:', email_address.value)
     emailError.value = true
     errorMessage.value = 'Введите корректный email'
     isValidEmail.value = false
@@ -207,11 +207,11 @@ const handleSubmit = () => {
     }
 
     outboxMails.value.push({
-      email: email_adres.value,
+      email: email_address.value,
       text: text.value
     })
 
-    email_adres.value = ''
+    email_address.value = ''
     text.value = ''
     alert.value = false
   }
@@ -229,17 +229,17 @@ const saveToDrafts = () => {
       // Если редактируется черновик, обновляем его
       if (isEditingDraft.value) {
        draftMails.value[editingDraftIndex.value] = {
-          email: email_adres.value,
+          email: email_address.value,
           text: text.value
         }
      } else {
         draftMails.value.push({
-         email: email_adres.value,
+         email: email_address.value,
          text: text.value
        })
       }
 
-    email_adres.value = ''
+    email_address.value = ''
     text.value = ''
     alert.value = false
   }
