@@ -160,7 +160,7 @@ const toggleTheme = () => {
 // Открыть окно для нового письма
 const openNewEmail = () => {
   isEditingDraft.value = false
-  email_adsress.value = ''
+  email_address.value = ''
   text.value = ''
   alert.value = true
 }
@@ -178,7 +178,7 @@ const editDraft = (index) => {
 // Функция для валидации email
 const validateEmail = () => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (emailRegex.test(email_adsress.value)) {
+  if (emailRegex.test(email_address.value)) {
     console.log('Valid email:', email_address.value)
     emailError.value = false
     errorMessage.value = ''
