@@ -13,7 +13,7 @@
             
             <q-input
               class="input_email"
-              v-model="email_adres"
+              v-model="email_address"
               label="Введите адрес"
               :error="emailError"
               :error-message="errorMessage"
@@ -22,13 +22,13 @@
               @change="validateEmail"
             ></q-input>
             <q-input 
-            v-model="text" 
-            filled 
-            type="textarea" 
-            label="Введите текст письма"
-            dense
-            outlined
-            class="q-mt-md"
+              v-model="text" 
+              filled 
+              type="textarea" 
+              label="Введите текст письма"
+              dense
+              outlined
+              class="q-mt-md"
             ></q-input>
           </q-card-section>
 
@@ -41,7 +41,7 @@
         </q-card>
       </q-dialog>
     </div>
-    <!-- Перенесенная кнопка с heder -->
+    <!-- Перенесенная кнопка с header -->
     <q-btn class="btn_click_bar" label="Написать письмо" color="secondary" @click="openNewEmail"></q-btn>
     <div>
       <q-splitter v-model="splitterModel" class="box">
@@ -55,7 +55,7 @@
               class="night_theme"
               flat
               icon="brightness_6"
-              :label="isDark ? 'Светлая тема' : 'Темная тема'"
+              :label="Dark.isActive ? 'Светлая тема' : 'Темная тема'"
               @click="toggleTheme"
               color="secondary"
             />
@@ -110,14 +110,13 @@
 
 <script setup>
 import { Dark } from 'quasar'
-import { ref } from 'vue'
+import {onMounted, ref} from 'vue'
 
-const isDark = ref(Dark.isActive)
 const alert = ref(false)
 const tab = ref('mails')
 const splitterModel = ref(20)
 
-const email_adres = ref('')
+const email_address = ref('')
 const text = ref('')
 
 const emailError = ref(false)
@@ -154,23 +153,9 @@ const incomingMails = ref([
 ])
 
 const toggleTheme = () => {
-  const newTheme = !Dark.isActive
-  Dark.set(newTheme)
-  isDark.value = newTheme
-  localStorage.setItem('theme', newTheme ? 'dark' : 'light')
+  Dark.set(!Dark.isActive)
+  localStorage.setItem('isDarkTheme', String(Dark.isActive))
 }
-// onMounted(() => {
-//   const savedTheme = localStorage.getItem('theme')
-  
-//   if (savedTheme === 'dark' || savedTheme === 'light') {
-//     Dark.set(savedTheme === 'dark')
-//     isDark.value = Dark.isActive
-//   } else {
-//     // Если тема некорректна или отсутствует, устанавливаем светлую по умолчанию
-//     Dark.set(false)
-//     isDark.value = false
-//   }
-// })
 
 // Открыть окно для нового письма
 const openNewEmail = () => {
@@ -269,6 +254,13 @@ const deleteMail = (index, type) => {
     draftMails.value.splice(index, 1); // Удалить черновик
   }
 };
+
+onMounted(() => {
+  const savedTheme = localStorage.getItem('isDarkTheme')
+  const booleanSavedTheme = savedTheme === 'true' 
+
+  Dark.set(booleanSavedTheme)
+})
 </script>
 
 <style scoped>
