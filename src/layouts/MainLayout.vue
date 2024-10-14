@@ -1,7 +1,7 @@
 <template>
   <div id="q-app" style="min-height: 100vh;">
     <div class="q-pa-md q-gutter-sm">
-      <!-- <q-btn label="Написать письмо" color="secondary" @click="openNewEmail"></q-btn> -->
+      <q-btn class="btn_click_bar" label="Написать письмо" color="secondary" @click="openNewEmail"></q-btn>
       
 
       <q-dialog v-model="alert" persistent>
@@ -41,8 +41,6 @@
         </q-card>
       </q-dialog>
     </div>
-    <!-- Перенесенная кнопка с header -->
-    <q-btn class="btn_click_bar" label="Написать письмо" color="secondary" @click="openNewEmail"></q-btn>
     <div>
       <q-splitter v-model="splitterModel" class="box">
         <template v-slot:before>
